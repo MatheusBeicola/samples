@@ -1,7 +1,7 @@
 /*
 
 Modelagem de um sistema de arquivos 
-C�digo original por Andr� Rosa, Diego Oliveira e Vin�cius Hax (2007)
+Código original por André Rosa, Diego Oliveira e Vinícius Hax (2007)
 
 I-Node  --  	100 bytes - nome
 		1 byte - arquivo ou diretorio (0 p/ diretorio e 1 / arquivo)
@@ -65,23 +65,23 @@ int busca_bloco_livre(void){
 			}
 	return 0;
 }
-
-void altera_mapa(int bl_logico, int status){
-	int byte_mapa;
+// Matheus Castro Lucas
+void altera_mapa(int bl_logico, int status){ //Define o tipo de retorno e os parâmetros da função
+	int byte_mapa; 
 	int bit_mapa;
-	byte_mapa = bl_logico / 8;
-	bit_mapa = bl_logico % 8;
-	if (status == OCUPADO)
+	byte_mapa = bl_logico / 8; // Calcula o byte e o bit correspondente a posição do "bl_logico" no mapa de bits
+	bit_mapa = bl_logico % 8; // Verifica se o "status" do bloco é "OCUPADO" ou "LIVRE"
+	if (status == OCUPADO) // Se o "status" for "OCUPADO", chama a função "set_bit", passando como argumentos o endereço do byte correspondente e o bit correspondente no mapa de bits
 		set_bit(&ea[byte_mapa], bit_mapa);
-	else
+	else // Caso contrário, chama a função "reset_bit", passando os mesmos argumentos
 		reset_bit(&ea[byte_mapa], bit_mapa);
 }
-
-void libera_bloco(int bl_logico){
-	altera_mapa(bl_logico, LIVRE);
-	int end_real = converte_bloco(bl_logico);
+// Matheus Castro Lucas
+void libera_bloco(int bl_logico){ // Define o tipo de retorno e os parâmetros da função
+	altera_mapa(bl_logico, LIVRE); // Chama a função "altera_mapa" para alterar o status do bloco para "LIVRE"
+	int end_real = converte_bloco(bl_logico); // Calcula o endereço físico correspondente ao bloco lógico, chamando a função "converte_bloco"
 	int i;
-	for (i=end_real; i<end_real+512; i++)
+	for (i=end_real; i<end_real+512; i++) // Cria um loop que percorre os bytes correspondentes ao bloco físico e os zera, garantindo que não haja dados remanescentes no bloco.
 		ea[i] = 0;
 }
 
@@ -546,7 +546,7 @@ void delarquivopelobloco(int bl_logico){
 				if (end_direto != 0)
 					altera_mapa(end_direto, LIVRE); //Libera bloco de dados
 			}
-			altera_mapa(end_indireto, LIVRE); //Libera bloco de endere�os
+			altera_mapa(end_indireto, LIVRE); //Libera bloco de endereços
 		}
 		
 	}
@@ -586,7 +586,7 @@ void deldirpelobloco(int bl_logico){
 					altera_mapa(end_direto, LIVRE); //Libera bloco de dados
 					}
 			}
-			altera_mapa(end_indireto, LIVRE); //Libera bloco de endere�os
+			altera_mapa(end_indireto, LIVRE); //Libera bloco de endereços
 		}
 		
 	}
