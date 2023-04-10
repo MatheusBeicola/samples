@@ -45,17 +45,17 @@ void reset_bit(char* byte, int bit){
 	char reset_byte = (unsigned int) pow((float) 2, (float) bit);
 	*byte = *byte & (0xff - reset_byte);
 }
-
+// Matheus Castro Lucas
 int busca_bloco_inode(void){
 // Busca blocos de inodes livres
 // 128 bytes, eh possivel mapear 1024 blocos
 	int i;
-	for(i=0; i<FINAL_MB_INODES; i++)
-		if (ea[i] != (char) 0xff){
+	for(i=0; i<FINAL_MB_INODES; i++) // Verifica se o byte atual não está completamente preenchido com 1's, o que indicaria que não há blocos livres neste byte
+		if (ea[i] != (char) 0xff){ 
 			return (8*i + bit_livre(&ea[i]) );
-			}
-	return 0;
-}
+			} // Encontra o bit livre dentro do byte atual e retorna o número do bloco de inode correspondente
+	return 0; 
+} // Retorna 0 caso não seja encontrado nenhum bloco de inode livre
 
 int busca_bloco_livre(void){
 	int i;
@@ -88,31 +88,32 @@ void libera_bloco(int bl_logico){ // Define o tipo de retorno e os parâmetros d
 int converte_bloco (int bl_virtual){
 	return bl_virtual*TAMANHO_BLOCO;
 }
-
+// Matheus Castro Lucas
 int conta_blocos(int bl_virtual){ //Se o bloco virtual passado como parametro eh um diretorio, conta quantos arquivos e diretorios existem no mesmo, se for um arquivo, conta quantos blocos de dados ele possui.
-	int end_real = converte_bloco(bl_virtual);
-	int contador=0, i, j, end_indireto;
-	for(i=end_real+128; i<end_real+384; i+=2)
-		if ((ea[i]*256 + ea[i+1]) == 0)
+	int end_real = converte_bloco(bl_virtual); // Converte o bloco virtual em um bloco real.
+	int contador=0, i, j, end_indireto; // Define variáveis para contagem e iteração.
+
+	for(i=end_real+128; i<end_real+384; i+=2) // Percorre os 128 primeiros endereços do bloco.
+		if ((ea[i]*256 + ea[i+1]) == 0)  // Se o endereço for 0, interrompe o loop.
 			break;
-		else
+		else // Caso contrário, incrementa o contador.
 			contador++;
-	for(i=end_real+384; i<end_real+512; i+=2){
- 		if ((ea[i]*256 + ea[i+1]) != 0){
- 			end_indireto = ea[i]*256 + ea[i+1];
- 			for(j=end_indireto; j<end_indireto+512; j+=2){
- 				if ((ea[j]*256 + ea[j+1]) == 0){
+	for(i=end_real+384; i<end_real+512; i+=2){ // Percorre os endereços restantes do bloco.
+ 		if ((ea[i]*256 + ea[i+1]) != 0){ // Se o endereço não for 0, há um bloco indireto apontando para outros blocos.
+ 			end_indireto = ea[i]*256 + ea[i+1]; // Obtém o endereço do bloco indireto.
+ 			for(j=end_indireto; j<end_indireto+512; j+=2){ // Percorre os endereços apontados pelo bloco indireto.
+ 				if ((ea[j]*256 + ea[j+1]) == 0){ // Se o endereço for 0, interrompe o loop.
  					break;
  				}
- 				else{
+ 				else{ // Caso contrário, incrementa o contador.
  					contador++;
  				}
  			}
 		}
-		else
+		else // Se o endereço for 0, interrompe o loop.
 			break;
 	}
-	return contador++;
+	return contador++; // Retorna o contador.
 }
 
 int ultimo_endereco_valido(int bl_virtual){
